@@ -158,3 +158,16 @@ export async function deployProductionSite(
 
   return deploymentResult;
 }
+export async function deployFirestore(gacFilename, projectId: string) {
+  const deploymentText = await execWithCredentials(
+    ["deploy", "--only", "firestore"],
+    projectId,
+    gacFilename
+  );
+
+  const deploymentResult = JSON.parse(deploymentText) as
+    | ProductionSuccessResult
+    | ErrorResult;
+
+  return deploymentResult;
+}

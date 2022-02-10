@@ -26,7 +26,7 @@ import { existsSync } from "fs";
 import { createCheck } from "./createCheck";
 import { createGacFile } from "./createGACFile";
 import {
-  deployPreview,
+  deployFirestore,
   deployProductionSite,
   ErrorResult,
   interpretChannelDeployResult,
@@ -86,68 +86,18 @@ async function run() {
     );
     endGroup();
 
-    if (isProductionDeploy) {
-      startGroup("Deploying to production site");
-      const deployment = await deployProductionSite(gacFilename, {
-        projectId,
-        target,
-      });
-      if (deployment.status === "error") {
-        throw Error((deployment as ErrorResult).error);
-      }
-      endGroup();
-
-      const hostname = target ? `${target}.web.app` : `${projectId}.web.app`;
-      const url = `https://${hostname}/`;
-      await finish({
-        details_url: url,
-        conclusion: "success",
-        output: {
-          title: `Production deploy succeeded`,
-          summary: `[${hostname}](${url})`,
-        },
-      });
-      return;
-    }
+    startGroup("Deploying firestore");
+    await deployFirestore(gacFilename, projectId);
+    endGroup();
 
     const channelId = getChannelId(configuredChannelId, context);
 
-    startGroup(`Deploying to Firebase preview channel ${channelId}`);
-    const deployment = await deployPreview(gacFilename, {
-      projectId,
-      expires,
-      channelId,
-      target,
-    });
-
-    if (deployment.status === "error") {
-      throw Error((deployment as ErrorResult).error);
-    }
-    endGroup();
-
-    const { expireTime, urls } = interpretChannelDeployResult(deployment);
-
-    setOutput("urls", urls);
-    setOutput("expire_time", expireTime);
-    setOutput("details_url", urls[0]);
-
-    const urlsListMarkdown =
-      urls.length === 1
-        ? `[${urls[0]}](${urls[0]})`
-        : urls.map((url) => `- [${url}](${url})`).join("\n");
-
-    if (token && isPullRequest && !!octokit) {
-      const commitId = context.payload.pull_request?.head.sha.substring(0, 7);
-
-      await postChannelSuccessComment(octokit, context, deployment, commitId);
-    }
-
     await finish({
-      details_url: urls[0],
+      details_url: "",
       conclusion: "success",
       output: {
         title: `Deploy preview succeeded`,
-        summary: getURLsMarkdownFromChannelDeployResult(deployment),
+        summary: "",
       },
     });
   } catch (e) {
