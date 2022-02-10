@@ -26,7 +26,7 @@ import { existsSync } from "fs";
 import { createCheck } from "./createCheck";
 import { createGacFile } from "./createGACFile";
 import {
-  deployFirestore,
+  deployFirestoreAndStorage,
   deployProductionSite,
   ErrorResult,
   interpretChannelDeployResult,
@@ -87,7 +87,7 @@ async function run() {
     endGroup();
 
     startGroup("Deploying firestore");
-    await deployFirestore(gacFilename, projectId);
+    await deployFirestoreAndStorage(gacFilename, projectId);
     endGroup();
 
     const channelId = getChannelId(configuredChannelId, context);

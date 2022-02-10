@@ -158,13 +158,21 @@ export async function deployProductionSite(
 
   return deploymentResult;
 }
-export async function deployFirestore(gacFilename, projectId: string) {
-  const deploymentText = await execWithCredentials(
+export async function deployFirestoreAndStorage(
+  gacFilename,
+  projectId: string
+) {
+  const deploymentTextFirestore = await execWithCredentials(
     ["deploy", "--only", "firestore"],
     projectId,
     gacFilename
   );
-
+  const deploymentTextStorage = await execWithCredentials(
+    ["deploy", "--only", "storage"],
+    projectId,
+    gacFilename
+  );
+  const deploymentText = deploymentTextFirestore + deploymentTextStorage;
   const deploymentResult = JSON.parse(deploymentText) as
     | ProductionSuccessResult
     | ErrorResult;
