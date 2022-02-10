@@ -167,12 +167,15 @@ export async function deployFirestoreAndStorage(
     projectId,
     gacFilename
   );
+  console.log({ deploymentTextFirestore });
   const deploymentTextStorage = await execWithCredentials(
     ["deploy", "--only", "storage"],
     projectId,
     gacFilename
   );
-  const deploymentText = deploymentTextFirestore + deploymentTextStorage;
+  console.log({ deploymentTextStorage });
+
+  const deploymentText = deploymentTextFirestore;
   const deploymentResult = JSON.parse(deploymentText) as
     | ProductionSuccessResult
     | ErrorResult;
