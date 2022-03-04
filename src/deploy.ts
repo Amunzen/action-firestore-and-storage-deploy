@@ -163,13 +163,13 @@ export async function deployFirestoreAndStorage(
   projectId: string
 ) {
   const deploymentTextFirestore = await execWithCredentials(
-    ["deploy", "--only", "firestore"],
+    ["deploy", "--only", "firestore", "--force"],
     projectId,
     gacFilename
   );
   console.log({ deploymentTextFirestore });
   const deploymentTextStorage = await execWithCredentials(
-    ["deploy", "--only", "storage"],
+    ["deploy", "--only", "storage", "--force"],
     projectId,
     gacFilename
   );
