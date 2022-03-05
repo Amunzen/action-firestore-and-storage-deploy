@@ -14,44 +14,25 @@
  * limitations under the License.
  */
 
-import {
-  endGroup,
-  getInput,
-  setFailed,
-  setOutput,
-  startGroup,
-} from "@actions/core";
+import { endGroup, getInput, setFailed, startGroup } from "@actions/core";
 import { context, getOctokit } from "@actions/github";
 import { existsSync } from "fs";
 import { createCheck } from "./createCheck";
 import { createGacFile } from "./createGACFile";
-import {
-  deployFirestoreAndStorage,
-  deployProductionSite,
-  ErrorResult,
-  interpretChannelDeployResult,
-} from "./deploy";
-import { getChannelId } from "./getChannelId";
-import {
-  getURLsMarkdownFromChannelDeployResult,
-  postChannelSuccessComment,
-} from "./postOrUpdateComment";
+import { deployFirestoreAndStorage } from "./deploy";
 
 // Inputs defined in action.yml
-const expires = getInput("expires");
 const projectId = getInput("projectId");
 const googleApplicationCredentials = getInput("firebaseServiceAccount", {
   required: true,
 });
-const configuredChannelId = getInput("channelId");
-const isProductionDeploy = configuredChannelId === "live";
 const token = process.env.GITHUB_TOKEN || getInput("repoToken");
 const octokit = token ? getOctokit(token) : undefined;
 const entryPoint = getInput("entryPoint");
-const target = getInput("target");
 
 async function run() {
   const isPullRequest = !!context.payload.pull_request;
+  console.log({ isPullRequest });
 
   let finish = (details: Object) => console.log(details);
   if (token && isPullRequest) {
@@ -86,11 +67,9 @@ async function run() {
     );
     endGroup();
 
-    startGroup("Deploying firestore");
+    startGroup("Deploying firestore and storage");
     await deployFirestoreAndStorage(gacFilename, projectId);
     endGroup();
-
-    const channelId = getChannelId(configuredChannelId, context);
 
     await finish({
       details_url: "",
