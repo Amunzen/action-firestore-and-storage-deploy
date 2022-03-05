@@ -36,7 +36,11 @@ async function run() {
 
   let finish = (details: Object) => console.log(details);
   if (token && isPullRequest) {
-    finish = await createCheck(octokit, context);
+    finish = await createCheck(
+      octokit,
+      context.repo,
+      context.payload.pull_request!.head.sha
+    );
   }
 
   try {
